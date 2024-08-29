@@ -1,0 +1,111 @@
+
+---
+title: "Lecture_1_MACSS"
+author: "Auffhammer"
+date: "2024-08-29"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. I am going to use markdown for most in class exercises. 
+``` {r simple random smapling}
+#Create a vector of data
+rm(list=ls()) # Clear everything. 
+set.seed(09222008) #Always set seed for replicability
+some_population <- c(100, 200, 300, 400, 500) 
+  
+#Sample 2 values with replacement
+sampled_numbers <- sample (some_population, size = 2, replace = TRUE) 
+print(sampled_numbers)
+
+# But what about a deck of cards? No Replacement?
+deck <- 1:52
+shuffled_deck <- sample(deck, size = length(deck), replace = FALSE)
+hand_size <- 5
+hand <- shuffled_deck[1:hand_size]
+print(hand)
+
+# Cute Max. But we are scientists. We mostly sample from data frames. How do you do that? OK. 
+
+# Create a data frame
+some_population_df <- data.frame(
+Name = c("Shaily","Keyu","Santiago","David","Nayeli","Srishti","Chelsea","Chelsea","Kaiwen","Sang Min","Alex","Wenjia","Jerra","Citlalli","Lu","Mina","Muhammad","Shufan","Zhilie", "Eloise Wenxi", "Riza", "Iris", "Emelia", "Yuxuan", "Jonathan", "Christian", "Max", "Qinuo"),
+fav_number = c(25, 30, 35, 40, 45, 30, 35, 40, 45, 30, 35, 40, 45, 30, 35, 40, 45, 30, 35, 40, 45, 30, 35, 40, 45, 30, 35, 40)
+)
+
+# Sample 2 rows with replacement
+sampled_df <- some_population_df[sample(nrow(some_population_df), size = 3, replace = FALSE), ]
+print(sampled_df)
+
+
+
+# Sometimes we want to take repeated samples (Monte Carlo!)
+# Define a population vector
+k_pop <- c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+ 
+# Replicate sampling 5 times without replacement
+replicated_samples <- replicate(5, sample(k_pop, size = 3, replace = FALSE))
+ 
+# Print the replicated samples
+print(replicated_samples)
+
+#What about dplyr?
+
+# Create a sample data frame
+# Set seed for reproducibility
+set.seed(09222008)  
+library(dplyr)
+data <- data.frame(
+  ID = 1:100,
+  Value = rnorm(100)
+)
+ 
+# Randomly sample 10 rows from the data frame
+sampled_data <- data %>%
+  sample_n(10)
+ 
+# View the sampled data
+print(sampled_data)
+
+```
+
+
+```{r cluster_sample_simulate}
+
+
+
+set.seed(09222008) #Always set seed for replicability
+df <- data.frame(sections = rep(1:10, each=50),ta_rating = rnorm(500, mean=5, sd=2.2))
+head(df)
+clusters <- sample(unique(df$sections), size=4, replace=F)
+sample <- df[df$sections %in% clusters, ]
+table(sample$sections)
+```
+
+
+```{r weather}
+# What about something a little more ambitious? What was the average annual temperature in the US? If you have 
+rm(list=ls()) # Clear everything. 
+
+setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_1/in_class_exercises")
+x <-  read.csv("lecture_1_weather.csv")
+plot(x$longitude,x$latitude)
+
+mean(x$tMax)
+mean(x$tMin)
+
+# Choose a number of clusters. If you have to go measure things, it is costly to add more trips!!!
+clusters_w <- sample(unique(x$fips), size=4, replace=F)
+sample_w <- x[x$fips %in% clusters_w, ]
+mean(sample_w$tMax)
+mean(sample_w$tMin)
+```
+
+

@@ -109,3 +109,47 @@ mean(sample_w$tMin)
 ```
 
 
+```{r CLT}
+rm(list = ls()) # clear memory
+set.seed(22092008) # set random number generator seed
+N<-1000000 # population size
+n <- 10 # sample size (for calculation of mean)
+numloop <- 10000 # number of draws
+
+# Placeholder
+g <- integer(numloop) # vector to hold sample mean for each iteration
+
+# # For normally distributed data
+sig2 <- 1 # variance for population
+mu <- 0 # mean of population
+r <- rnorm(N, mean=mu,sd=sqrt(sig2))
+
+# For uniformly distributed data
+# ub <- 10
+# lb <- -10
+# r <- runif(N, min = lb, max = ub)
+# sig2 <- (lb-ub)^2/12 # variance for uniform (SCIENCE!)
+
+# Plot population
+hist(r,prob=TRUE,breaks = 50,main = "Raw data")
+readline(prompt="Press [enter] to continue")
+
+# Draw `numloop' samples of size n and calculate mean each time. 
+
+for(i in 1:numloop) {
+  tmp <-sample(r, n, replace = FALSE, prob = NULL)
+  g[i] <- mean(tmp)
+}
+
+# Calculate minimum and maximum of sample means (cleaner plot)
+a <-min(g)
+b <-max(g)
+
+
+# Make histogram of sample means with 50 bins
+hist(g,prob=TRUE,breaks = 50,main = "Sampling Distribution of sample mean")
+
+# Overlay normal distribution with predicted mean and variance
+curve(dnorm(x,mean=0,sd=sqrt(sig2/n)),a,b,add=TRUE,lwd=2,col="red")
+```
+

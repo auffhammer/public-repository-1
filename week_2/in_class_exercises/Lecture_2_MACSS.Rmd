@@ -1,0 +1,86 @@
+
+---
+title: "Lecture_2_MACSS"
+author: "Auffhammer"
+date: "2024-09-05"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r CLT}
+rm(list = ls()) # clear memory
+
+set.seed(22092008) # set random number generator seed
+
+N<-1000000 # population size
+
+n <- 10 # sample size (for calculation of mean)
+numloop <- 10000 # number of draws
+
+# Placeholder
+g <- integer(numloop) # vector to hold sample mean for each iteration
+
+# # For normally distributed data
+sig2 <- 1 # variance for population
+mu <- 0 # mean of population
+r <- rnorm(N, mean=mu,sd=sqrt(sig2))
+
+# For uniformly distributed data
+# ub <- 10
+# lb <- -10
+# r <- runif(N, min = lb, max = ub)
+# sig2 <- (lb-ub)^2/12 # variance for uniform (SCIENCE!)
+
+# Plot population
+hist(r,prob=TRUE,breaks = 50,main = "Raw data")
+readline(prompt="Press [enter] to continue")
+
+# Draw `numloop' samples of size n and calculate mean each time. 
+
+for(i in 1:numloop) {
+  tmp <-sample(r, n, replace = FALSE, prob = NULL)
+  g[i] <- mean(tmp)
+}
+
+# Calculate minimum and maximum of sample means (cleaner plot)
+a <-min(g)
+b <-max(g)
+
+
+# Make histogram of sample means with 50 bins
+hist(g,prob=TRUE,breaks = 50,main = "Sampling Distribution of sample mean")
+
+# Overlay normal distribution with predicted mean and variance
+curve(dnorm(x,mean=0,sd=sqrt(sig2/n)),a,b,add=TRUE,lwd=2,col="red")
+```
+
+
+Now let's turn R into a calculator to calculate critical values and p-values. 
+
+```{r lookingup pvals}
+# If you want to look up critical values based on a certain amount of probability mass in the tail for a normal pdf, use qnorm.
+qnorm(0.025)
+
+# This looks up the critical value on a normal pdf, with 0.025 probability mass to the left of it. If you are looking for the upper tail, just do.....
+qnorm(0.975)
+
+#If you have a critical value and want to look up the probability mass, you do.....
+pnorm(-1.96)
+# This gives you the probability mass to the left of -1.96 z-scores. If you want to calculate the area to the right, make sure you do this as follows (for esample area to the right of 1.645)
+1-pnorm(1.645)
+
+# Cool. What about t-distributions?
+# Well, you need one more parameter. The degrees of freedom.
+# So if you want the area in the tail to the left of a t of -2.23 with 23 degrees of freedom, you do....
+pt(-2.23,23)
+
+# or if you want to figure out what the critical value for a certain alpha is given the degrees of freedom you have.....
+qt(0.05,23)
+
+
+```
+Now chuck your t and normal tables forever!!!!

@@ -18,22 +18,22 @@ set.seed(22092008) # set random number generator seed
 
 N<-1000000 # population size
 
-n <- 10 # sample size (for calculation of mean)
+n <- 250 # sample size (for calculation of mean)
 numloop <- 10000 # number of draws
 
 # Placeholder
 g <- integer(numloop) # vector to hold sample mean for each iteration
 
 # # For normally distributed data
-sig2 <- 1 # variance for population
-mu <- 0 # mean of population
-r <- rnorm(N, mean=mu,sd=sqrt(sig2))
+# sig2 <- 1 # variance for population
+# mu <- 0 # mean of population
+# r <- rnorm(N, mean=mu,sd=sqrt(sig2))
 
 # For uniformly distributed data
-# ub <- 10
-# lb <- -10
-# r <- runif(N, min = lb, max = ub)
-# sig2 <- (lb-ub)^2/12 # variance for uniform (SCIENCE!)
+ub <- 10
+lb <- -10
+r <- runif(N, min = lb, max = ub)
+sig2 <- (lb-ub)^2/12 # variance for uniform (SCIENCE!)
 
 # Plot population
 hist(r,prob=TRUE,breaks = 50,main = "Raw data")

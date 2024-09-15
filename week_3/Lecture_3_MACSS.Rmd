@@ -15,10 +15,9 @@ There was a question after last class, which suggested doubt about the fact that
 rm(list = ls()) # clear memory
 
 set.seed(22092008) # set random number generator seed
-
 N<-1000000 # population size
 
-n <- 1000 # sample size (for calculation of mean)
+n <- 10 # sample size (for calculation of mean)
 numloop <- 10000 # number of draws
 
 # Placeholder
@@ -36,7 +35,7 @@ g <- integer(numloop) # vector to hold sample mean for each iteration
 # sig2 <- (lb-ub)^2/12 # variance for uniform (SCIENCE!)
 
 # For a binomial!
- p <- 0.3
+ p <- 0.01
  r <- rbinom(n=N, size=1, prob=p)
  sig2 <- (p)*(1-p)
 # lb <- -10

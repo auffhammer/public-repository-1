@@ -1,0 +1,115 @@
+
+---
+title: "Lecture_4_MACSS"
+author: "Auffhammer"
+date: "2024-09-19"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Now let's get ambitious. We are going to generate some data on health status of some made up folks and play random sampling and random assignment. This forst exercise lets you simulate what happens if insurance is randomly assigned, versus if it is not.... It will also show us how to do the t-test to compare group means and how to use a canned routine to calculate these automatically, which is generally better (since the right test depends on the nature of the random variable you are looking at.)
+
+```{r Health}
+rm(list = ls()) # clear memory
+library(dplyr)
+library(MASS)
+library(crosstable)
+library(flextable)
+set.seed(22092008) # set random number generator seed
+n <- 1000 # Sample Size
+mu <- c(0, 0,0)
+a <- 0.5 #Gender Income Covariance
+b <- 0.1 #Gender Insurance Covariance
+c <- 0.8 #Income insurance
+
+# If insurance were randomized
+# a <- 0.5 # Set to 0.5 as default
+# b <- 0.0 # Set to 0.1 as default
+# c <- 0.0 # Set to 0.8 as default
+
+# Some betas for later
+b1 <-1 #Gender Beta
+b2 <-5 # Income Beta
+b3 <-3 #Insurance
+shifter <- 30
+Sigma <- matrix(c(1, a, b, a, 1, c,b, c, 1), nrow=3)
+data = mvrnorm(n, mu, Sigma, empirical=FALSE)
+Gender = data[, 1]  # standard normal (mu=0, sd=1)
+Income = data[, 2]  # standard normal (mu=0, sd=1)
+Insurance= data[, 3]  # standard normal (mu=0, sd=1)
+
+# Gender and income should be binary
+Ins <- Insurance>0
+Gend <- Gender>0
+cor(Ins,Gend) 
+cor(Ins,Income) 
+cor(Gend,Income)
+
+# We are going to generate some arbitrary Health Index
+Health <- shifter +  rnorm(n,mean=0,sd=1) + b1*Gend + b2*Income + b3* Ins
+# Plot my Outcome
+hist(Health)
+
+# Let's do a manual comaprison of Health Across the Insured and Uninsured.
+mydata <- data.frame(Income, Gend, Health, Ins)
+
+# Let's compare across treatment
+# First - do this by hand. Difference in means. Unknown and uneuqal variances.
+
+M1 <- mean(mydata[Ins == 'TRUE', 'Health']) 
+M2 <- mean(mydata[Ins == 'FALSE', 'Health'])
+n1 <- sum(Ins)
+n2 <- n-n1
+V1 <- var(mydata[Ins == 'TRUE', 'Health']) 
+V2 <- var(mydata[Ins == 'FALSE', 'Health']) 
+S <- sqrt((V1 / n1) + (V2 / n2))
+statistic <- (M1 - M2 - 0) / S
+print(statistic)
+
+t_health <- t.test(Health ~ Ins)
+print(t_health)
+t_inc <- t.test(Income ~ Ins)
+print(t_inc)
+my_test_args=crosstable_test_args(show_method=FALSE)
+ft1 <- crosstable(mydata,by="Ins", test=TRUE, funs=c(mean=mean),test_args=my_test_args) %>% 
+  as_flextable()
+ print (ft1)
+
+```
+
+Now let's turn to some simple regression analysis. It is so simple, my teenager can do it. In fact, I checked and he can. That said, interpreting what it tells you is going to be the art form. 
+
+```{r regressions}
+rm(list = ls()) # clear memory
+setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_4")
+library(dplyr)
+library(MASS)
+airfares <- read.csv("airfares.csv")
+planes <- lm(airfares$fare ~ airfares$dist)
+planes.res = resid(planes)
+summary(planes)
+plot(airfares$dist, planes.res, ylab="Residuals", xlab="Distance", main="Residual Plot") 
+```
+
+```{r avocados}
+rm(list = ls()) # clear memory
+setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_4")
+library(dplyr)
+library(MASS)
+avocado <- read.csv("avocado.csv")
+plot(avocado$quantity_reg, avocado$price_reg, ylab="Residuals", xlab="Price (some units)", main="Quantity (some units)") 
+avo_lin <- lm(avocado$quantity_reg ~ avocado$price_reg)
+avo_lin.res = resid(avo_lin)
+summary(avo_lin)
+plot(avocado$price_reg, avo_lin.res, ylab="Residuals", xlab="Price", main="Residual Plot") 
+l_price <- log(avocado$price_reg)
+l_q <- log(avocado$quantity_reg)
+avo_log <- lm(l_q ~ l_price)
+avo_log.res = resid(avo_log)
+summary(avo_log)
+plot(l_price, avo_log.res, ylab="Residuals", xlab="Log Price", main="Residual Plot") 
+```
+

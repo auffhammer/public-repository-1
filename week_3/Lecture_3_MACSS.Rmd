@@ -118,57 +118,7 @@ cheese[i] <- mu<cil[i] | mu>ciu[i]
 print(round(mean(cheese),2))
 ```
 
-Now let's get ambitious. We are going to generate some data on health status of some made up folks and play random sampling and random assignment. 
-
-```{r Health}
-rm(list = ls()) # clear memory
-library("dplyr")
-library('MASS')
-library('crosstable')
-library('flextable')
-set.seed(22092008) # set random number generator seed
-N <- 10000 #Population Size
-n <- 1000 # Sample Size
-mu <- c(0, 0,0)
-# a <- 0.5 #Gender Income Covariance
-# b <- 0.1 #Gender Insurance Covariance
-# c <- 0.8 #Income insurance
-
-# If insurance were randomized
-a <- 0.5 # Set to 0.5 as default
-b <- 0.0 # Set to 0.1 as default 
-c <- 0.0 # Set to 0.8 as default
-
-# Some betas for later
-b1 <-1 #Gender Beta
-b2 <-5 # Income Beta
-b3 <-3 #Insurance
-shifter <- 30
-Sigma <- matrix(c(1, a, b, a, 1, c,b, c, 1), nrow=3)
-data = mvrnorm(N, mu, Sigma, empirical=FALSE)
-Gender = data[, 1]  # standard normal (mu=0, sd=1)
-Income = data[, 2]  # standard normal (mu=0, sd=1)
-Insurance= data[, 3]  # standard normal (mu=0, sd=1)
-
-# Gender and income should be binary
-Ins <- Insurance>0
-Gend <- Gender>0
-cor(Ins,Gend) 
-cor(Ins,Income) 
-cor(Gend,Income)
-
-# We are going to generate some arbitrary Health Index
-Health <- shifter +  rnorm(N,mean=0,sd=1) + b1*Gend + b2*Income + b3* Ins
-# Plot my Outcome
-hist(Health)
-# Let's make a nice table comparing groups across insurance
-mydata <- data.frame(Income, Gend, Health, Ins)
-ft1 <- crosstable(mydata,by="Ins", test=TRUE, funs=c(mean=mean, "std error"=sd)) %>% 
-  as_flextable()
-print (ft1)
-```
-
-We will play with this more next time. 
+ 
 
 
 

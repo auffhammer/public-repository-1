@@ -18,17 +18,19 @@ library(dplyr)
 library(MASS)
 library(crosstable)
 library(flextable)
+library(ggplot2)
+library(plyr)
 set.seed(22092008) # set random number generator seed
 n <- 1000 # Sample Size
 mu <- c(0, 0,0)
-a <- 0.5 #Gender Income Covariance
-b <- 0.1 #Gender Insurance Covariance
-c <- 0.8 #Income insurance
+# a <- 0.5 #Gender Income Covariance
+# b <- 0.1 #Gender Insurance Covariance
+# c <- 0.8 #Income Insurance
 
 # If insurance were randomized
-# a <- 0.5 # Set to 0.5 as default
-# b <- 0.0 # Set to 0.1 as default
-# c <- 0.0 # Set to 0.8 as default
+a <- 0.5 # Set to 0.5 as default
+b <- 0.0 # Set to 0.1 as default
+c <- 0.0 # Set to 0.8 as default
 
 # Some betas for later
 b1 <-1 #Gender Beta
@@ -50,11 +52,21 @@ cor(Gend,Income)
 
 # We are going to generate some arbitrary Health Index
 Health <- shifter +  rnorm(n,mean=0,sd=1) + b1*Gend + b2*Income + b3* Ins
-# Plot my Outcome
-hist(Health)
 
-# Let's do a manual comaprison of Health Across the Insured and Uninsured.
+# Let's do a manual comparison of Health Across the Insured and Uninsured.
 mydata <- data.frame(Income, Gend, Health, Ins)
+# Calculate Means by Group (using ddply). 
+mu <- ddply(mydata, "Ins", summarise, grp.mean=mean(Health))
+
+# Plot my health outcome by Insurance Status in Pretty Graph
+ggplot(mydata, aes(x=Health, color=Ins, fill=Ins)) +
+  scale_color_manual(values=c("#002676", "#FC9313")) +
+  scale_fill_manual(values=c("#002676", "#FC9313")) +
+  geom_histogram(alpha=0.1, position="identity", bins=50)+
+  geom_vline(data=mu, aes(xintercept=grp.mean, color=Ins),
+             linetype="dashed") +
+  labs(title="Health Outcomes by Insurance Status",x="Health Index", y = "Count")+
+  theme_classic()
 
 # Let's compare across treatment
 # First - do this by hand. Difference in means. Unknown and uneuqal variances.
@@ -84,32 +96,95 @@ Now let's turn to some simple regression analysis. It is so simple, my teenager 
 
 ```{r regressions}
 rm(list = ls()) # clear memory
-setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_4")
 library(dplyr)
 library(MASS)
+library(stargazer) # For pretty Regression Tables
+setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_4")
+
 airfares <- read.csv("airfares.csv")
+#Let's plot some data. 
+ggplot(airfares, aes(x=dist, y=fare)) + 
+  geom_point(alpha=0.5, shape=16, fill="#002676", color="#002676", size=2)+
+  geom_smooth(method=lm, color="#FC9313")+
+  labs(title="Airfare by Distance",
+       x="Distance (Miles)", y = "Fare (US$)")+
+  theme_classic()  
+
+
+#Let's run a regression.  
 planes <- lm(airfares$fare ~ airfares$dist)
-planes.res = resid(planes)
-summary(planes)
-plot(airfares$dist, planes.res, ylab="Residuals", xlab="Distance", main="Residual Plot") 
+# Let's record some residuals and join them to our data frame. 
+airfares$res <- planes$resid
+
+#Let's make some nice looking regression output. 
+
+stargazer(planes, type='text', digits = 3, title = 'Linear Airfare Distance Regression', style = 'qje')
+
+# Plot Residuals - Playing with colors (HEX Colors - official Cal!
+# Also meesing with background and Axis Labels. )
+ggplot(airfares, aes(x=dist, y=res)) + 
+  geom_point(alpha=0.5, shape=16, fill="#002676", color="#002676", size=2)+
+  geom_smooth(method=lm, se=FALSE, color="#FC9313")+
+  labs(title="Airfare by Distance",
+       x="Distance (Miles)", y = "Residuals")+
+  theme_classic()  
+
+# Much nicer than the junk I showed in lecture. Apologies. 
+
+
 ```
 
 ```{r avocados}
-rm(list = ls()) # clear memory
-setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_4")
 library(dplyr)
 library(MASS)
+library(stargazer) # For pretty Regression Tables
+setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_4")
+
 avocado <- read.csv("avocado.csv")
-plot(avocado$quantity_reg, avocado$price_reg, ylab="Residuals", xlab="Price (some units)", main="Quantity (some units)") 
+
+#Let's plot some data. I am fitting a smoother (loess) to the data to see what the functional # form looks like. A bit more on this later. 
+
+ggplot(avocado, aes(x=price_reg, y=quantity_reg)) + 
+  geom_point(alpha=0.5, shape=16, fill="#002676", color="#002676", size=2)+
+  geom_smooth(method=loess, color="#FC9313")+
+  labs(title="Avocado Demand (Conventional)",
+       x="Quantity (some units)", y = "Price (US$ per some unit)")+
+  theme_classic()  
+
+# Now run a regression of the linear model No transformation. 
 avo_lin <- lm(avocado$quantity_reg ~ avocado$price_reg)
-avo_lin.res = resid(avo_lin)
-summary(avo_lin)
-plot(avocado$price_reg, avo_lin.res, ylab="Residuals", xlab="Price", main="Residual Plot") 
-l_price <- log(avocado$price_reg)
-l_q <- log(avocado$quantity_reg)
-avo_log <- lm(l_q ~ l_price)
-avo_log.res = resid(avo_log)
-summary(avo_log)
-plot(l_price, avo_log.res, ylab="Residuals", xlab="Log Price", main="Residual Plot") 
+
+# Let's record some residuals and join them to our data frame. 
+avocado$res <- avo_lin$resid
+
+#Let's make some nice looking regression output. 
+stargazer(avo_lin, type='text', digits = 3, title = 'Linear Price Regression', style = 'qje')
+
+# Plot Residuals - same pretty graph as before. 
+ggplot(avocado, aes(x=price_reg, y=res)) + 
+  geom_point(alpha=0.5, shape=16, fill="#002676", color="#002676", size=2)+
+  geom_smooth(method=lm, se=FALSE, color="#FC9313")+
+  labs(title="Residual Plot - Avocado Demand",
+       x="Price (US$ per something)", y = "Residuals")+
+  theme_classic()  
+
+# Transform our variables using natural logs. 
+avocado$l_price <- log(avocado$price_reg)
+avocado$l_q <- log(avocado$quantity_reg)
+
+# Run the log log regression. 
+avo_log <- lm(avocado$l_q ~ avocado$l_price)
+
+# Let's record some residuals and join them to our data frame. 
+avocado$resl <- avo_log$resid
+
+# Plot Residuals - same pretty graph as before. 
+ggplot(avocado, aes(x=l_price, y=resl)) + 
+  geom_point(alpha=0.5, shape=16, fill="#002676", color="#002676", size=2)+
+  geom_smooth(method=lm, se=FALSE, color="#FC9313")+
+  labs(title="Residual Plot - Log-Log Avocado Demand Residuals",
+       x="Log(Price) (US$ per something)", y = "Residuals")+
+  theme_classic()  
+
 ```
 

@@ -1,0 +1,120 @@
+---
+title: "Problem Set 1 - Answer Key"
+author: "MaCCS 201 - Fall 2024"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/problem_set_1")
+library(pacman)
+p_load(moments, distr, sn,directlabels,lfe, whitestrap, parallel,GGally,broom,kableExtra, estimatr,plm,leaflet, gganimate, ggplot2, ggthemes, viridis, dplyr, magrittr, knitr,pagedown,tibble,latex2exp,MASS,stargazer)
+
+```
+## Tentative Due Date: September 25
+### Please submit markdown file named [last_name]_[first_name]_ps1.Rmd on git (instructions to follow)
+
+##Part A: Pirates, Astronauts and learning how to express yourself.......
+
+Dave Eggers is a famous author. Prof. Max likes his books. Turns out, Dave Eggers also tries to help kids by providing places with after school support by offering writing and arts programs. If you have never been to 826 Valencia in San Francisco, you should visit it sometime. Running these programs is costly. So in order to make this operation work, Dave had the genius idea to put a store at the front end of these writing/arts centers, where nerds like Prof. Max buy things they do not need (like 42 sided dice, doubloons etc.). Dave is talking to a large funding agency about possibly providing a grant to support his operations. They want evidence of revenues for these stores. Dave has his accountant draw a random sample of monthly sales from his store network. He has data on 72 monthly sales in dollars. You can assume that sales are not seasonal and i.i.d for this. The funding agency will fund the grant if he can show that average monthly sales ($q$) are greater than $12,500 per store. 
+
+1. Write down the null and alternate hypothesis.
+
+$$H_0: \mu \leq 12,500 $$
+$$H_a: \mu > 12,500$$
+
+2. Assuming a type 1 error probability of 5%, calculate the critical value (in the relevant t or z score) to the fifth decimal. 
+
+This is a one tailed test. The critical value is $t_{0.05,71} = 1.667$. You can get this by 
+```{R , t-test, eval=T, echo=T}
+tst <-qt(0.95,71)
+tst
+```
+
+3. The file ``sales.csv'' has the sales for the 72 months he supplies to the foundation. Using these numbers, calculate the decision rule (Hint: The $ amount in sales that you would have to exceed to convince the funding agency to fund you.)
+
+```{R , var, eval=T, echo=T}
+sales <- read.csv("sales.csv")
+xbar <- mean(sales$sales)
+sd <-sd(sales$sales)/sqrt(72)
+dr <- 12500 + tst*sd
+dr
+```
+
+You would need to sell more than $12905.35 worth of stuff. 
+
+
+4. Like in class, draw the sampling distribution under the null hypothesis being true and clearly identify the Reject and Fail to Reject regions. 
+
+The grey area is the reject region (greater than 1.67 t-scores)
+
+```{R , draw, eval=T, echo=T}
+ggplot(data = tibble(x = c(-4, 4)), aes(x)) +
+  stat_function(
+    fun = dt, args= list(df=71), n = 1e3,
+    color = "darkslategrey"
+  ) +
+   geom_area(
+    stat = "function", fun = dt, args= list(df=71),
+    fill = "darkslategrey", alpha = 0.3,
+    xlim = c(1.667, 4)
+  ) +
+  labs(x = "x", y = "f") +
+  theme_classic(base_size = 20) 
+```
+
+5. Calculate the relevant test statistic. 
+
+The relevant statistic is $t = \frac{\bar{x} - 12500}{\sqrt{s^2/n}}$, using the numebrs above the test statistic is $t=1.800193$. 
+
+6. Conduct the hypothesis test and tell the funding agency what to do. Should they fund Dave or not?
+
+You reject the null and fund Dave! It's close. But you reject the null. 
+
+7. Calculate the Type II error probability if the true average sales are \$13000 per store and standard deviation is $2050.
+
+This is equivalent to asking what the probability mass to the left of \$12905.35 (your decision rule) is for a t with mean \$13,000 and standard deviation \$2050/sqrt(72).
+```{R , type2, eval=T, echo=T}
+t2 <- (dr-13000)/(2050/sqrt(72))
+t2
+pt(t2,71)
+
+```
+
+So the Type II error probability here is 34.4%.
+
+##Part B: Monte Carlo is not just a city in Monaco. 
+
+In class Max showed a Monte Carlo experiment of how a sample proportion converges to a normal distribution if the sample size condition is met ($n*p>10$ and $(1-p)*n>10$ ). He also showed that things break down if that condition is not met. He also gave a condition necessary in the case of a continuous random variable, which required that a `` normal model provides an accurate approximation to the sampling distribution of the sample mean if the sample size n is larger than 10 times the absolute value of the kurtosis.
+$n > 10*|K4|$. Using the Monte Carlo code provided in lecture 2 as a point of departure, design a Monte Carlo for a setting that violates this condition and show us what the resulting sampling distribution looks like as a histogram. I would run a Monte Carlo with 10,000 reps and a histogram with 50 bins. 
+
+This was harder than I thought to break without cheating. So if you gave it a good try, we will give you credit here. I went about it by creating a LaPlace random variable and drawing really small samples to get a sampling distribution that looks not quite normal.... The conclusion is that the CLT is pretty darn powerful....
+
+```{R , montecarlo, eval=T, echo=T}
+
+rm(list = ls()) # clear memory
+set.seed(22092008) # set random number generator seed
+n <- 8 #sample size
+numloop <- 1000000 # number of draws
+
+D <- DExp(rate = 1) 
+
+g <- integer(numloop) # vector to hold sample mean for each iteration
+k <- integer(numloop) # vector to hold sample mean for each iteration
+
+for(i in 1:numloop) {
+r <- r(D)(n)
+
+g[i] <- mean(r)
+k[i] <- kurtosis(r)
+}
+
+clt <- data.frame(g,k)
+clt2 <- clt[clt$k >5,] 
+ggplot(clt2, aes(x=g)) +
+  geom_histogram(alpha=0.5, fill="#FC9313", color="#002676", position="identity", bins=25)+
+  labs(title="Distribution of Sample Means",x="Sample Mean", y = "Count")+
+  theme_classic()+
+  theme_classic(base_size = 14) 
+```

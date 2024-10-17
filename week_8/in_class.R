@@ -63,7 +63,12 @@ g <- integer(numloop) # vector to hold sample mean for each iteration
 mu <- matrix(c(2, 3, 7, 1, 0),ncol=1)
 
 # Make the correlation matrix
-sigma = matrix(c(1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1000),ncol=5)
+sigma = matrix(c(
+  1,0,0,0,0,
+  0,1,0,0,0,
+  0,0,1,0,0,
+  0,0,0,1,0,
+  0,0,0,0,1),nrow=5)
 
 for(i in 1:numloop) {
 # Create some data
@@ -75,7 +80,7 @@ names(x)[3] <- "x3"
 names(x)[4] <- "x4"
 names(x)[5] <- "err"
 # Generate some true outcomes with no problems anywhere. 
-x$y = 7 - 0.2*x$x1 + 0.5*x$x2 - 0.3*x$x3  + 0.2*x$x4 + x$err
+x$y = 3 - 0.2*x$x1 + 0.5*x$x2 - 0.3*x$x3  + 0.2*x$x4 + x$err
 # Run a regression of y on the xs. 
 mod_1 = lm(y ~ 1+ x1 + x2 + x3 + x4, data=x)
 g[i] <-summary(mod_1)$coefficients[4]

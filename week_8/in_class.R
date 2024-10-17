@@ -21,7 +21,12 @@ n =100
 mu <- matrix(c(2, 3, 7, 1, 0),ncol=1)
 
 # Make the correlation matrix
-sigma = matrix(c(1,0.0,0,0,0,0.0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1000),ncol=5)
+sigma = matrix(c(
+  1,0,0,0,0,
+  0,1,0,0,0,
+  0,0,1,0,0,
+  0,0,0,1,0,
+  0,0,0,0,1),nrow=5)
 
 # Create some data
 x = as.data.frame(mvrnorm(n=100,mu, sigma))
@@ -32,7 +37,7 @@ names(x)[3] <- "x3"
 names(x)[4] <- "x4"
 names(x)[5] <- "err"
 # Generate some true outcomes
-x$y = 7 - 0.2*x$x1 + 0.5*x$x2 - 0.3*x$x3  + 0.2*x$x4 + x$err
+x$y = 3 - 0.2*x$x1 + 0.5*x$x2 - 0.3*x$x3  + 0.2*x$x4 + x$err
 
 # Run a regression of y on the xs. 
 mod_1 = lm(y ~ 1+ x1 + x2 + x3 + x4, data=x)

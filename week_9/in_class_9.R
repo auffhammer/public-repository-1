@@ -19,7 +19,7 @@ N  <- 1000
 # two instruments and a well behaved error terms
 
 # Make some mean for my variables
-mu <- matrix(c(2, 3, 7, 1, 5, 2, 0),ncol=1)
+mu <- matrix(c(0,0,0,0,0,0,0),ncol=1)
 
 # Make the correlation matrix
 sigma = matrix(c(
@@ -42,7 +42,7 @@ names(x)[5] <- "z1"
 names(x)[6] <- "z2"
 names(x)[7] <- "err"
 # Generate some true outcomes
-x$y1 = 3 - 0.8*x$y2 + 0.7**x$y3 + 0.2*x$x1 - 0.5*x$x2 + x$err
+x$y1 = 3 - 0.8*x$y2 - 0.7**x$y3 + 0.2*x$x1 - 0.5*x$x2 + x$err
 
 
 # Run a regression of y1 on  y2 and the x1 and x2 (leave out y3). 

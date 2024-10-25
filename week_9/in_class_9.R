@@ -1,13 +1,18 @@
 # In Class Week 9
+# There is some cluster&^% happening in the random number generation in R. 
+# I have generated the data for you. The code that worked on my machine and is 
+# right is below. I have commented it out. You can run this with the datafile I put on git. 
+# More soon. 
+
 rm(list = ls()) # clear memory
 # Put your own working Directory Here
-setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_8")
-set.seed(22092008)
-options(htmltools.dir.version = FALSE)
-library(pacman)
-p_load(car,sandwich,FSM,skedastic,modelsummary, summarytools,lfe, parallel,GGally,broom,kableExtra, estimatr,plm,leaflet, gganimate, ggplot2, ggthemes, viridis, dplyr,plyr, magrittr, knitr,pagedown,tibble,latex2exp,MASS,stargazer)
-
-N  <- 1000
+setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_9")
+# set.seed(22092008)
+# options(htmltools.dir.version = FALSE)
+# library(pacman)
+# p_load(car,sandwich,FSM,skedastic,modelsummary, summarytools,lfe, parallel,GGally,broom,kableExtra, estimatr,plm,leaflet, gganimate, ggplot2, ggthemes, viridis, dplyr,plyr, magrittr, knitr,pagedown,tibble,latex2exp,MASS,stargazer)
+# 
+# N  <- 1000
 # Some playing around with IV
 # Here we do simulated data. Problem Set 3 has real data. 
 
@@ -19,32 +24,33 @@ N  <- 1000
 # two instruments and a well behaved error terms
 
 # Make some mean for my variables
-mu <- matrix(c(0,0,0,0,0,0,0),ncol=1)
+# mu <- matrix(c(0,0,0,0,0,0,0),ncol=1)
+# 
+# # Make the correlation matrix
+# sigma = matrix(c(
+#   1,0.7,0,0,0.5,0.5,0,
+#   0.7,1,0,0,0,0,0,
+#   0,0,1,0,0,0,0,
+#   0,0,0,1,0,0,0,
+#   0.5,0,0,0,1,0,0,
+#   0.5,0,0,0,0,1,0,
+#   0,0,0,0,0,0,1),nrow=7)
+# 
+# # Create some data
+# x = as.data.frame(mvrnorm(n=N,mu, sigma))
+# # Ues these our lines are ugly. 
+# names(x)[1] <- "y2"
+# names(x)[2] <- "y3"
+# names(x)[3] <- "x1"
+# names(x)[4] <- "x2"
+# names(x)[5] <- "z1"
+# names(x)[6] <- "z2"
+# names(x)[7] <- "err"
+# # Generate some true outcomes
+# x$y1 = 3 - 0.8*x$y2 - 0.7**x$y3 + 0.2*x$x1 - 0.5*x$x2 + x$err
+#write.csv(x,"iv_data.csv")
 
-# Make the correlation matrix
-sigma = matrix(c(
-  1,0.7,0,0,0.5,0.5,0,
-  0.7,1,0,0,0,0,0,
-  0,0,1,0,0,0,0,
-  0,0,0,1,0,0,0,
-  0.5,0,0,0,1,0,0,
-  0.5,0,0,0,0,1,0,
-  0,0,0,0,0,0,1),nrow=7)
-
-# Create some data
-x = as.data.frame(mvrnorm(n=N,mu, sigma))
-# Ues these our lines are ugly. 
-names(x)[1] <- "y2"
-names(x)[2] <- "y3"
-names(x)[3] <- "x1"
-names(x)[4] <- "x2"
-names(x)[5] <- "z1"
-names(x)[6] <- "z2"
-names(x)[7] <- "err"
-# Generate some true outcomes
-x$y1 = 3 - 0.8*x$y2 - 0.7**x$y3 + 0.2*x$x1 - 0.5*x$x2 + x$err
-
-
+x <- as.data.frame(read.csv("iv_data.csv"))
 # Run a regression of y1 on  y2 and the x1 and x2 (leave out y3). 
 mod_1 = lm(y1 ~ 1+ y2 + x1 + x2, data=x)
 summary(mod_1)

@@ -9,7 +9,7 @@ rm(list = ls()) # clear memory
 
 # Put your own working Directory Here
 setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_9")
-# set.seed(22092008)
+set.seed(22092008)
 options(htmltools.dir.version = FALSE)
 library(pacman)
 p_load(estimatr,ggplot2,MASS)
@@ -32,7 +32,7 @@ g4 <- integer(numloop)
 # Make some mean for my variables
 mu <- matrix(c(0,0,0,0,0,0,0),ncol=1)
 
-# Make the correlation matrix
+# Make the covariance matrix
 sigma = matrix(c(
   1,0.7,0,0,0.5,0.5,0,
   0.7,1,0,0,0,0,0,
@@ -54,7 +54,7 @@ names(x)[5] <- "z1"
 names(x)[6] <- "z2"
 names(x)[7] <- "err"
 # # Generate some true outcomes
-x$y1 = 3 - 0.8*x$y2 - 0.7**x$y3 + 0.2*x$x1 - 0.5*x$x2 + x$err
+x$y1 = 3 - 0.8*x$y2 - 0.7*x$y3 + 0.2*x$x1 - 0.5*x$x2 + x$err
 
 # Run a regression of y1 on  y2 and the x1 and x2 (leave out y3). 
 mod_1 = lm(y1 ~ 1+ y2 + x1 + x2, data=x)

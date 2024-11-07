@@ -1,15 +1,17 @@
-# Fuzzy RD Replication from Cattaneo, Frandsen, and Titunik) - See Mixtape for further Discussion
 rm(list = ls()) # clear memory
 setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/public-repository-1/week_10")
 set.seed(22092008) # set random number generator seed
-library(tidyverse)  # ggplot(), %>%, mutate(), and friends
-library(broom)  # Convert models to data frames
-library(rdrobust)  # For robust nonparametric regression discontinuity
-library(estimatr)  # Run 2SLS models in one step with iv_robust()
-library(modelsummary)  # Create side-by-side regression tables
-library(kableExtra)  # Fancy table formatting
-
-# This is an excellent exmaple from Andrew Weiss: hypothetical example, students take an entrance exam at the beginning of a school year. Those who score 70 or below are automatically enrolled in a free tutoring program and receive assistance throughout the year. At the end of the school year, students take a final test, or exit exam (with a maximum of 100 points) to measure how much they learned overall. Remember, this is a hypothetical example and tests like this don’t really exist
+library(pacman)
+p_load(tidyverse,broom,rdrobust,estimatr,modelsummary)
+# This is an excellent example from Andrew Weiss: 
+#hypothetical example, students take an entrance exam 
+#at the beginning of a school year. 
+#Those who score 70 or below are automatically enrolled 
+#in a free tutoring program and receive assistance throughout the year. 
+#At the end of the school year, students take a final test, 
+#or exit exam (with a maximum of 100 points) to measure how much 
+#they learned overall. Remember, this is a hypothetical example 
+#and tests like this don’t really exist
 
 tutoring <- read_csv("tutoring_program_fuzzy.csv")
 

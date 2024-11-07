@@ -1,8 +1,8 @@
 # A little panel data exercise
-# Explain vairation in life expectancy across countries.
+# Explain variation in life expectancy across countries.
 rm(list = ls()) # clear memory
 setwd("/Users/auffhammer/Library/CloudStorage/Dropbox/06_Teaching/MACSS/2024/code/private-repository1/week10")
-library(ggplot2, lfe)
+library(ggplot2,lfe)
 set.seed(22092008) # set random number generator seed
 wb <- read.csv("life.csv")
 # Start with a simple OLS regression of Life.Expectancy on Schooling
@@ -16,7 +16,7 @@ summary(mod_2)
 # Challenge - demean by country and run a regular regression without fixed effects.
 # Do you get the same results?
 
-# Control for Country Fixed Effects
+# Control for Country & Year Fixed Effects
 mod_3 <- felm(Life.expectancy ~ Schooling| Country + Year, data = wb)
 summary(mod_3)
 

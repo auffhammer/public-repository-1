@@ -1,5 +1,5 @@
 # We are going to replicate Carpenter and Dobkin one the effects of minimum drikjning age on
-# mortality - This is the exericse condicted by Philip Leppert. 
+# mortality - This is the exercise conducted by Philip Leppert. 
 
 rm(list = ls()) # clear memory
 # Replace this with whatever your directory is. 
@@ -10,7 +10,8 @@ p_load(dplyr,ggplot2,rddtools,magrittr)
 # Read in data
 carpenter_dobkin_2009 <- read.csv("dobkin.csv")
 
-# At first, we have to compute a dummy variable (threshold), indicating whether an indidivual is below or above the cutoff. The dummy is equal to zero for observations below and equal to one for observations aboev the cutoff of 21 years. Then I am specifiying a linear model with function lm() to regress all deaths per 100.000 (all) on the threshold dummy and the respondents’ age which is centered around the threshold value of age (21 years). This is done with function I() by substracting the cutoff from each age bin.
+# At first, we have to compute a dummy variable (threshold), indicating whether an indidivual is below or above the cutoff. The dummy is equal to zero for observations below and equal to one for observations above the cutoff of 21 years. 
+#Then I am specifiying a linear model with function lm() to regress all deaths per 100.000 (all) on the threshold dummy and the respondents’ age which is centered around the threshold value of age (21 years). This is done with function I() by substracting the cutoff from each age bin.
 carpenter_dobkin_2009 %>% 
   ggplot(aes(x = agecell, y = all)) + 
   geom_point() +
@@ -123,3 +124,8 @@ theme_classic(base_size = 14)
 
 # What happens if you use a third, fourth and fifth order polynomial? With and without the data limitation to 20-22?
 
+rdd_data(y = carpenter_dobkin_2009$all, 
+         x = carpenter_dobkin_2009$agecell, 
+         cutpoint = 21) %>% 
+  rdd_reg_lm(slope = "separate", order = 13) %>% 
+  summary()

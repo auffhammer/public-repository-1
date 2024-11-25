@@ -19,8 +19,8 @@ texas <- read_data("texas.dta") %>%
 # Now you need to prepare the data. 
 # foo	 = The dataframe with the panel data.
 
-# predictors	 <- A vector of column numbers or column-name character strings that identifies the predictors' 
-#columns. All predictors have to be numeric.
+# predictors	 <- A vector of column numbers or column-name character strings that identifies the 
+#predictors' columns. All predictors have to be numeric.
 
 # predictors.op	 <- A character string identifying the method (operator) to be used on the predictors. 
 # Default is "mean". rm.na = T is hardwired into the code. See *Details*.

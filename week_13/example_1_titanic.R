@@ -14,7 +14,7 @@ sapply(training.data.raw,function(x) sum(is.na(x)))
 # Max is a visual learner
 missmap(training.data.raw, main = "Missing values vs observed")
 
-# Let's drop class, since there are too many missing values. Also Passneger ID is useless.
+# Let's drop class, since there are too many missing values. Also Passenger ID is useless.
 data <- subset(training.data.raw,select=c(2,3,5,6,7,8,10,12))
 data <-  na.omit(data)
 # Let's estimate our model 
